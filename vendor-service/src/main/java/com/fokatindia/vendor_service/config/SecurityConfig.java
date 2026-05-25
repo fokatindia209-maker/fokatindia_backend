@@ -1,0 +1,54 @@
+package com.fokatindia.vendor_service.config;
+
+import com.fokatindia.vendor_service.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+
+@Configuration
+@EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(
+            ServerHttpSecurity http
+    ) {
+
+        return http
+
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+
+                .authorizeExchange(exchange -> exchange
+
+                        .pathMatchers(
+                                "/restful/v1/api/vendors/**",
+                                "/restful/v1/api/subvendors/**",
+                                "/restful/v1/api/documents/**",
+                                "/restful/v1/api/categories/**",
+                                "/restful/v1/api/services"
+                        )
+
+                        .permitAll()
+
+                        .anyExchange()
+
+                        .authenticated()
+                )
+
+                .addFilterAt(
+                        jwtAuthenticationFilter,
+                        SecurityWebFiltersOrder.AUTHENTICATION
+                )
+
+                .build();
+    }
+}

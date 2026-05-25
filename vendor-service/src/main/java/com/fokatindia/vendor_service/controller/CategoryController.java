@@ -1,0 +1,125 @@
+package com.fokatindia.vendor_service.controller;
+
+import com.fokatindia.vendor_service.dto.ApiResponse;
+import com.fokatindia.vendor_service.dto.CategoryRequest;
+import com.fokatindia.vendor_service.dto.CategoryResponse;
+import com.fokatindia.vendor_service.service.CategoryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/restful/v1/api/categories")
+@RequiredArgsConstructor
+public class CategoryController {
+
+    private final CategoryService service;
+
+    // =====================================================
+    // CREATE CATEGORY
+    // =====================================================
+
+    @PreAuthorize("hasAuthority('CATEGORY_CREATE')")
+    @PostMapping
+    public Mono<ApiResponse<CategoryResponse>> create(
+            @RequestBody CategoryRequest request
+    ) {
+
+        return service.create(request)
+                .map(res ->
+                        new ApiResponse<>(
+                                "success",
+                                200,
+                                "Category created successfully",
+                                res
+                        )
+                );
+    }
+
+    // =====================================================
+    // GET CATEGORY BY ID
+    // =====================================================
+
+    @PreAuthorize("hasAuthority('CATEGORY_VIEW')")
+    @GetMapping("/{id}")
+    public Mono<ApiResponse<CategoryResponse>> getById(
+            @PathVariable Long id
+    ) {
+
+        return service.getById(id)
+                .map(res ->
+                        new ApiResponse<>(
+                                "success",
+                                200,
+                                "Category fetched successfully",
+                                res
+                        )
+                );
+    }
+
+    // =====================================================
+    // GET ALL CATEGORIES
+    // =====================================================
+
+    @PreAuthorize("hasAuthority('CATEGORY_VIEW')")
+    @GetMapping
+    public Mono<ApiResponse<List<CategoryResponse>>> getAll() {
+
+        return service.getAll()
+                .collectList()
+                .map(list ->
+                        new ApiResponse<>(
+                                "success",
+                                200,
+                                "Category list fetched successfully",
+                                list
+                        )
+                );
+    }
+
+    // =====================================================
+    // UPDATE CATEGORY
+    // =====================================================
+
+    @PreAuthorize("hasAuthority('CATEGORY_UPDATE')")
+    @PutMapping("/{id}")
+    public Mono<ApiResponse<CategoryResponse>> update(
+            @PathVariable Long id,
+            @RequestBody CategoryRequest request
+    ) {
+
+        return service.update(id, request)
+                .map(res ->
+                        new ApiResponse<>(
+                                "success",
+                                200,
+                                "Category updated successfully",
+                                res
+                        )
+                );
+    }
+
+    // =====================================================
+    // DELETE CATEGORY
+    // =====================================================
+
+    @PreAuthorize("hasAuthority('CATEGORY_DELETE')")
+    @DeleteMapping("/{id}")
+    public Mono<ApiResponse<String>> delete(
+            @PathVariable Long id
+    ) {
+
+        return service.delete(id)
+                .thenReturn(
+                        new ApiResponse<>(
+                                "success",
+                                200,
+                                "Category deleted successfully",
+                                "Deleted"
+                        )
+                );
+    }
+}

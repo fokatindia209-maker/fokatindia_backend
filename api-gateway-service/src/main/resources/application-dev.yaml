@@ -1,0 +1,57 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: api-gateway-service
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/restful/v1/api/users/**,/restful/v1/api/admins/**,/restful/v1/api/roles/**,/restful/v1/api/permissions/**,/restful/v1/api/user-roles/**,/restful/v1/api/role-permissions/**
+
+
+
+            - id: vendor-service
+              uri: lb://vendor-service
+              predicates:
+                - Path=/restful/v1/api/vendors/**,/restful/v1/api/subvendors/**,/restful/v1/api/documents/**,/restful/v1/api/categories/**,/restful/v1/api/services/**
+
+
+            - id: booking-service
+              uri: lb://booking-service
+              predicates:
+                - Path=/restful/v1/api/bookings/**
+
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/restful/v1/api/payments/**
+
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/restful/v1/api/notifications/**
+
+            - id: review-service
+              uri: lb://review-service
+              predicates:
+                - Path=/restful/v1/api/reviews/**
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: false
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
